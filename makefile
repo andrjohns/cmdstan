@@ -21,7 +21,11 @@ help:
 
 STAN ?= stan/
 MATH ?= $(STAN)lib/stan_math/
-RAPIDJSON ?= lib/rapidjson_1.1.0/
+ifndef SYS_LIBS
+  RAPIDJSON ?= lib/rapidjson_1.1.0/
+else
+  RAPIDJSON ?= usr/lib/rapidjson/
+endif
 CLI11 ?= lib/CLI11-1.9.1/
 INC_FIRST ?= -I src -I $(STAN)src -I $(RAPIDJSON) -I $(CLI11)
 USER_HEADER ?= $(dir $<)user_header.hpp
