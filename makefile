@@ -338,3 +338,24 @@ compile_info:
 ##
 .PHONY: print-%
 print-%  : ; @echo $* = $($*)
+
+.PHONY: install
+install:
+	# Create bash script wrapper around 'make' call for stan model
+	@echo '#!/bin/bash' >> bin/cmdstan_model.sh
+	@echo 'make -C /opt/cmdstan/$(CMDSTAN_VERSION) $$(realpath --relative-to=/opt/cmdstan/$(CMDSTAN_VERSION) $$1)' >> bin/cmdstan_model.sh
+	# Compile bash script to binary
+	shc -f bin/cmdstan_model.sh
+	# Cleanup
+	mv bin/cmdstan_model.sh.x bin/cmdstan_model
+	rm bin/cmdstan_model.sh
+	rm bin/cmdstan_model.sh.x.c
+	# Copy cmdstan folder to system directory
+	mkdir -p /opt/cmdstan/$(CMDSTAN_VERSION)
+	cp -r ./. /opt/cmdstan/$(CMDSTAN_VERSION)
+	# Symlink bash script binary to user's binary folder
+	ln -s /opt/cmdstan/$(CMDSTAN_VERSION)/bin/cmdstan_model /usr/local/bin/cmdstan_model
+	# Compile example model so pre-compiled headers and main object file are built
+	cmdstan_model /opt/cmdstan/$(CMDSTAN_VERSION)/examples/bernoulli/bernoulli
+
+
